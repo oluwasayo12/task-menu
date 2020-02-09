@@ -24,9 +24,9 @@ class MenuController extends Controller
         ];
 
         $validator = Validator::make($request->all(), $rules, $message);
-        if($validator->fails()){
+        if ($validator->fails()) {
             return response()->json($validator->errors(), 400);
-        }else{
+        } else {
             $field = $request->input('field');
             $max_depth = $request->input('max_depth');
             $max_children = $request->input('max_children');
@@ -36,10 +36,12 @@ class MenuController extends Controller
             $createMenu->mn_depth = $max_depth ;
             $createMenu->mn_children = $max_children;
             $menuCreated = $createMenu->save();
-            if($menuCreated) return response()->json($request->all(), 201);
-            else return response()->json(["error"=>"Unable to create menu"], 400);
+            if ($menuCreated) {
+                return response()->json($request->all(), 201);
+            } else {
+                return response()->json(["error"=>"Unable to create menu"], 400);
+            }
         }
-        
     }
 
     /**
@@ -50,18 +52,21 @@ class MenuController extends Controller
      */
     public function show($menu)
     {
-        if(empty($menu)) return response()->json(["error"=>"Invalid menu id"], 400);
-        else{
-            $menuDetails = Menu::select('mn_field','mn_depth','mn_children')->where([['mn_id', '=', $menu]])->first();
-            if(!empty($menuDetails)) {
+        if (empty($menu)) {
+            return response()->json(["error"=>"Invalid menu id"], 400);
+        } else {
+            $menuDetails = Menu::select('mn_field', 'mn_depth', 'mn_children')->where([['mn_id', '=', $menu]])->first();
+            if (!empty($menuDetails)) {
                 $returnData = [];
-                $returnData['field'] = $menuDetails->mn_field; 
-                if(!is_null($menuDetails->mn_depth) && !is_null($menuDetails->mn_children) ){
-                    $returnData['max_depth'] = $menuDetails->mn_depth; 
-                    $returnData['max_children'] = $menuDetails->mn_children; 
+                $returnData['field'] = $menuDetails->mn_field;
+                if (!is_null($menuDetails->mn_depth) && !is_null($menuDetails->mn_children)) {
+                    $returnData['max_depth'] = $menuDetails->mn_depth;
+                    $returnData['max_children'] = $menuDetails->mn_children;
                 }
                 return response()->json($returnData, 200);
-            }else return response()->json(["error"=>"No record found for provided id"], 400);
+            } else {
+                return response()->json(["error"=>"No record found for provided id"], 400);
+            }
         }
     }
 
@@ -74,7 +79,31 @@ class MenuController extends Controller
      */
     public function update(Request $request, $menu)
     {
-        //
+        if (empty($menu)) {
+            return response()->json(["error"=>"Invalid menu id"], 400);
+        } else {
+            $field = $request->input('field');
+            $max_depth = $request->input('max_depth');
+            $max_children = $request->input('max_children');
+
+            $updateDetails = [
+                'mn_field' => $field,
+                'mn_depth' => $max_depth,
+                'mn_children' => $max_children
+            ];
+            $menuUpdate = Menu::where('mn_id', $menu)->update($updateDetails);
+            if ($menuUpdate) {
+                $returnData = [];
+                $returnData['field'] = $field;
+                if (!empty($max_depth) && !empty($max_children)) {
+                    $returnData['max_depth'] = $max_depth;
+                    $returnData['max_children'] = $max_children;
+                }
+                return response()->json($returnData, 200);
+            } else {
+                return response()->json(["error"=>"Unable to update record"], 400);
+            }
+        }
     }
 
     /**
@@ -85,6 +114,15 @@ class MenuController extends Controller
      */
     public function destroy($menu)
     {
-        //
+        if (empty($menu)) {
+            return response()->json(["error"=>"Invalid menu id"], 400);
+        } else {
+            $deleteMenu = Menu::where([['mn_id', '=', $menu]])->delete();
+            if ($deleteMenu) {
+                return response()->noContent();
+            } else {
+                return response()->json(["error"=>"Unable to delete record"], 400);
+            }
+        }
     }
 }
