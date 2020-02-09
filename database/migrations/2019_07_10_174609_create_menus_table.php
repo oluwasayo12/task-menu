@@ -19,6 +19,7 @@ class CreateMenusTable extends Migration
             $table->integer('mn_depth');
             $table->integer('mn_children');
             $table->timestamps();
+            $table->engine = 'InnoDB';	
         });
     }
 
