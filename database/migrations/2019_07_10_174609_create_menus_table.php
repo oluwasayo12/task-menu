@@ -16,8 +16,8 @@ class CreateMenusTable extends Migration
         Schema::create('menus', function (Blueprint $table) {
             $table->bigIncrements('mn_id');
             $table->string('mn_field');
-            $table->integer('mn_depth');
-            $table->integer('mn_children');
+            $table->integer('mn_depth')->nullable();
+            $table->integer('mn_children')->nullable();
             $table->timestamps();
             $table->engine = 'InnoDB';	
         });
