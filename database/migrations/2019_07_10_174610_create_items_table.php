@@ -14,10 +14,12 @@ class CreateItemsTable extends Migration
     public function up()
     {
         Schema::create('items', function (Blueprint $table) {
-            $table->bigIncrements('id');
-
-            //
-
+            $table->bigIncrements('it_id');
+            $table->foreign('it_mn_id')->references('mn_id')->on('menus');
+            $table->string('it_parent_id')->nullable();
+            $table->string('it_field');
+            $table->integer('it_depth');
+            $table->integer('it_children');
             $table->timestamps();
         });
     }
