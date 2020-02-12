@@ -19,8 +19,8 @@ class CreateItemsTable extends Migration
             $table->foreign('it_mn_id')->references('mn_id')->on('menus');
             $table->integer('it_parent_id')->nullable();
             $table->string('it_field');
-            $table->integer('it_depth');
-            $table->integer('it_children');
+            $table->integer('it_depth')->nullable();
+            $table->integer('it_children')->nullable();
             $table->timestamps();
             $table->engine = 'InnoDB';	
         });
