@@ -44,6 +44,7 @@ class MenuItemController extends Controller
         }
     }
 
+
     public function store(Request $request, $menu)
     {
         $totalField = 0;
@@ -78,6 +79,26 @@ class MenuItemController extends Controller
         }
     }
 
+
+
+    private function showChildren($parentid)
+    {
+        $childrenData = Item::select('it_id', 'it_field')->where('it_parent_id', $parentid)->get();
+
+        $childrenFields = [];
+        $finalData = [];
+        foreach ($childrenData as $key => $value) {
+            $childrenFields['field'] = $value->it_field;
+            $querySubchild = Item::select('it_field')->where('it_parent_id', $value->it_id)->get();
+            foreach ($querySubchild as $key => $subchild) {
+                $childrenFields['children'][]['field'] = $subchild->it_field;
+            }
+            $finalData[] = $childrenFields;
+        }
+
+        return $finalData;
+    }
+
     /**
      * Display the specified resource.
      *
@@ -86,7 +107,26 @@ class MenuItemController extends Controller
      */
     public function show($menu)
     {
-        //
+        if (empty($menu)) {
+            return response()->json(["error"=>"Invalid menu id"], 400);
+        } else {
+            $menuItems = Item::select('it_id', 'it_field')->where('it_mn_id', $menu)->whereNull('it_parent_id')->get();
+            $items = [];
+            foreach ($menuItems as $key => $item) {
+                $parent = $item->it_id;
+                
+                $childrenData = $this->showChildren($parent);
+
+                $items['field'] = $item->it_field;
+                $items['children'] = $childrenData;
+                $allItems[] = $items;
+            }
+            if (empty($allItems)) {
+                return response()->json(["error"=>"No record found"], 400);
+            } else {
+                return $allItems;
+            }
+        }
     }
 
     /**
@@ -97,6 +137,15 @@ class MenuItemController extends Controller
      */
     public function destroy($menu)
     {
-        //
+        if (empty($menu)) {
+            return response()->json(["error"=>"Invalid menu id"], 400);
+        } else {
+            $deleteMenu = Item::where([['it_mn_id', '=', $menu]])->delete();
+            if ($deleteMenu) {
+                return response()->noContent();
+            } else {
+                return response()->json(["error"=>"Unable to delete record"], 400);
+            }
+        }
     }
 }
