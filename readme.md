@@ -523,3 +523,9 @@ Get depth of menu.
 * Use cache
 * Use docker
 * Implement tests
+
+
+## My Comments
+* Documentation: https://documenter.getpostman.com/view/2791876/SzKPWh44
+* 10 vs 1.000.000 menu items - what would you do differently? I will work on the optimization of the database while also making use of cache.
+* Used PhpCS & PhpCsFixer
