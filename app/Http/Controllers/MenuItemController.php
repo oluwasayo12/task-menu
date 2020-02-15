@@ -3,47 +3,19 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use App\Traits\ItemTrait;
 use App\Item;
 
 class MenuItemController extends Controller
 {
+    use ItemTrait;
+
     /**
      * Store a newly created resource in storage.
      *
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
-
-    private function savechildren($mainMenu, $parent, $childrenData)
-    {
-        $no = 0;
-
-        if (is_array($childrenData)) {
-            foreach ($childrenData as $childKey => $childValue) {
-                $childField = $childValue['field'];
-                
-                $createItem= new Item;
-                $createItem->it_mn_id = $mainMenu;
-                $createItem->it_parent_id = $parent;
-                $createItem->it_field = $childField;
-                $itemCreated = $createItem->save();
-                if ($itemCreated) {
-                    $no++;
-                }
-
-                if (empty($childValue['children'])) {
-                    continue;
-                }
-                $this->saveChildren($mainMenu, $parent, $childValue['children']);
-            }
-        }
-        if ($no > 0) {
-            return true;
-        } else {
-            return false;
-        }
-    }
-
 
     public function store(Request $request, $menu)
     {
@@ -81,24 +53,6 @@ class MenuItemController extends Controller
 
 
 
-    private function showChildren($parentid)
-    {
-        $childrenData = Item::select('it_id', 'it_field')->where('it_parent_id', $parentid)->get();
-
-        $childrenFields = [];
-        $finalData = [];
-        foreach ($childrenData as $key => $value) {
-            $childrenFields['field'] = $value->it_field;
-            $querySubchild = Item::select('it_field')->where('it_parent_id', $value->it_id)->get();
-            foreach ($querySubchild as $key => $subchild) {
-                $childrenFields['children'][]['field'] = $subchild->it_field;
-            }
-            $finalData[] = $childrenFields;
-        }
-
-        return $finalData;
-    }
-
     /**
      * Display the specified resource.
      *
@@ -118,7 +72,9 @@ class MenuItemController extends Controller
                 $childrenData = $this->showChildren($parent);
 
                 $items['field'] = $item->it_field;
-                $items['children'] = $childrenData;
+                if (!empty($childrenData)) {
+                    $items['children'] = $childrenData;
+                }
                 $allItems[] = $items;
             }
             if (empty($allItems)) {
